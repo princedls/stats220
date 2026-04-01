@@ -1,0 +1,138 @@
+---
+title: "My Dynamic Social Media Report"
+author: "Prince De Los santos"
+output: html_fragment
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo=FALSE, message=FALSE, warning=FALSE, error=FALSE)
+
+library(tidyverse)
+```
+
+```{css}
+body {
+  background-color: #faf6f0;
+  font-family: Arial, sans-serif;
+  color: #333333;
+  line-height: 1.6;
+  margin: 30px;
+}
+
+/* Title */
+h1 {
+  color: #2c3e50;
+  text-align: center;
+}
+
+/* Main headings */
+h2 {
+  color: #2c3e50;
+  border-bottom: 3px solid #999999;
+  padding-bottom: 5px;
+  text-align: center;
+  margin-top: 30px;
+}
+
+/* Sub headings */
+h3 {
+  color: #2c3e50;
+  border-bottom: 2px solid #999999;
+  padding-bottom: 5px;
+  text-align: center;
+  margin-top: 25px;
+}
+
+/* Paragraph spacing */
+p {
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+/* Images (graphs) */
+img {
+  border: 2px solid #cccccc;
+  border-radius: 8px;
+  max-width: 80%;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+```
+
+## Tracking Social Media Use
+
+This report shows observational data collected me and my friends collected about personal social media usage sessions, tracking which platforms were used, for how long, time of day, and the purpose of using social media.
+
+```{r}
+logged_data <- read_csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vSzyrRTkXoh54_7I3kptRF5qNKu7LJRvxzkzi4RQL02B7oRMbVLVsLTIYsdUVfHe0U7ocu8Su-fhh15/pub?output=csv")
+
+#Renaming data questions to make it simpler and easier to understand
+latest_data <- logged_data |>
+  rename(
+    platform = `Which social media platform did you use the most this session?`,
+    minutes = `Approximately how many minutes did you spend on this platform? (Enter time in minutes only, e.g. 5, 10, 15, 60)`,
+    purpose = `What was your main purpose for using social media?`,
+    time = `What time of day did this session happen?` )
+
+# Changes "Discord" to "Other" 
+latest_data <- latest_data |>
+  mutate(platform = case_when(platform == "Discord" ~ "Other",
+                              TRUE ~ platform ))
+# Removing unrealistic values to get more accurate values
+latest_data <- latest_data |>
+  filter(minutes < 300)
+
+#Summary values
+average_minutes <- round(mean(latest_data$minutes), 2)
+minimum_minutes <- min(latest_data$minutes)
+maximum_minutes <- max(latest_data$minutes)
+total_sessions <- nrow(latest_data)
+```
+
+Across all **`r total_sessions`** logged sessions, the average time spent per session was **`r average_minutes`** minutes. The shortest session was **`r minimum_minutes`** minutes and the longest was **`r maximum_minutes`** minutes.
+It is important to note that I filtered it so data above 300 minutes would not be counted as they mess up the average and are a bit unrealistic in most cases. 
+
+### Sessions by Platform
+
+```{r}
+# Creates a bar chart for platforms used
+latest_data |>
+  ggplot(aes(x = platform)) +
+  geom_bar() +
+  labs(
+    title = "Number of Social Media Sessions by Platform",
+    x = "Platform",
+    y = "Count" )
+```
+
+This bar chart shows which social media platforms were used the most.
+
+### Sessions by Time of Day
+
+```{r}
+## Creates a bar chart for time of day 
+latest_data |>
+  ggplot(aes(x = time)) +
+  geom_bar() +
+  labs(
+    title = "Social Media Sessions by Time of Day",
+    x = "Time of Day",
+    y = "Count" )
+```
+
+This bar chart shows the time of day when social media was used the most.
+
+
+
+
+
+
+
+
+
+
+Thank you for reading! Here's a happy cat!
+![](https://media.tenor.com/5nSKlBlwdkIAAAAi/cat.gif)
+
